@@ -49,10 +49,10 @@ wlib.wrapModule (
     config.package = lib.mkDefault config.pkgs.atuin;
 
     # Atuin reads config from XDG_CONFIG_HOME/atuin/config.toml
-    # and themes from XDG_CONFIG_HOME/atuin/themes/*.toml
-    config.env = {
-      XDG_CONFIG_HOME = builtins.toString (
-        config.pkgs.linkFarm "atuin-config" (
+    # BUT themes require ATUIN_THEME_DIR environment variable
+    config.env =
+      let
+        atuinConfigDir = config.pkgs.linkFarm "atuin-config" (
           map
             (a: {
               inherit (a) path;
@@ -67,9 +67,13 @@ wlib.wrapModule (
               ]
               ++ themes
             )
-        )
-      );
-    };
+        );
+      in
+      {
+        XDG_CONFIG_HOME = builtins.toString atuinConfigDir;
+        # Atuin doesn't respect XDG_CONFIG_HOME for themes, needs explicit path
+        ATUIN_THEME_DIR = builtins.toString atuinConfigDir + "/atuin/themes";
+      };
 
     config.meta.maintainers = [
       {
