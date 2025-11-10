@@ -142,12 +142,12 @@ in
     };
   };
   config."config.rasi".content =
-    toRasi {
-      configuration = config.settings;
-    }
-    + (lib.optionalString (theme != null) (toRasi {
+    (lib.optionalString (theme != null) (toRasi {
       "@theme" = theme;
-    }));
+    }))
+    + toRasi {
+      configuration = config.settings;
+    };
 
   config.flags = {
     "-config" = toString config."config.rasi".path;
