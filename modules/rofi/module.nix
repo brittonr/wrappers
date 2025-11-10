@@ -115,12 +115,12 @@ wlib.wrapModule (
       "config.rasi" = lib.mkOption {
         type = wlib.types.file config.pkgs;
         default.content =
-          toRasi {
-            configuration = config.settings;
-          }
-          + (lib.optionalString (theme != null) (toRasi {
+          (lib.optionalString (theme != null) (toRasi {
             "@theme" = theme;
-          }));
+          }))
+          + toRasi {
+            configuration = config.settings;
+          };
       };
 
       settings = lib.mkOption {
