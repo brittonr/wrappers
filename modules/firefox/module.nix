@@ -6,6 +6,10 @@
 let
   managingExtensions = config.extensions != null;
 
+  defaultPolicies = {
+    PasswordManagerEnabled = false;
+  };
+
   # Convert settings attrset to policies.json Preferences format
   # Each pref gets Status = "default" so users can still override in about:config
   settingsToPreferences = lib.mapAttrs (_: value: {
@@ -44,9 +48,11 @@ let
     lockPref("xpinstall.signatures.required", false);
   '';
 
-  # Merge all policy sources: extensions, then extraPolicies, then settings on top
+  # Merge all policy sources: defaults, then extensions, then extraPolicies, then settings on top
   policies = lib.recursiveUpdate
-    (lib.recursiveUpdate extensionPolicies config.extraPolicies)
+    (lib.recursiveUpdate
+      (lib.recursiveUpdate defaultPolicies extensionPolicies)
+      config.extraPolicies)
     (lib.optionalAttrs (config.settings != { }) {
       Preferences = settingsToPreferences;
     });
