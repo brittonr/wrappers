@@ -17,9 +17,10 @@ let
     Status = "default";
   }) config.settings;
 
-  # Build extension policies matching the nixExtensions pattern from wrapFirefox:
-  # - ExtensionSettings blocks manual installs, whitelists managed ones
-  # - Extensions.Install provides file paths to XPIs
+  # Build extension policies:
+  # - ExtensionSettings blocks manual installs, auto-installs managed ones
+  # - Uses normal_installed + install_url so extensions are installed on launch
+  #   (user can still remove them, unlike force_installed)
   extensionPolicies = lib.optionalAttrs managingExtensions {
     ExtensionSettings = {
       "*" = {
@@ -30,14 +31,11 @@ let
       ext: acc:
       acc // {
         "${ext.extid}" = {
-          installation_mode = "allowed";
+          installation_mode = "normal_installed";
+          install_url = "file://${ext}/${ext.extid}.xpi";
         };
       }
     ) { } config.extensions;
-
-    Extensions = {
-      Install = map (ext: "${ext}/${ext.extid}.xpi") config.extensions;
-    };
   };
 
   # fetchFirefoxAddon repacks XPIs to inject extid, which invalidates
