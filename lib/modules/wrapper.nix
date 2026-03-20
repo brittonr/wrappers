@@ -85,6 +85,15 @@
       Example: [ "bin/unwanted-tool" "share/applications/*.desktop" ]
     '';
   };
+  options.preHook = lib.mkOption {
+    type = lib.types.lines;
+    default = "";
+    description = ''
+      Shell script to run before executing the wrapped program.
+      Runs after environment variables are exported but before exec.
+      Useful for creating runtime directories, merging configs, etc.
+    '';
+  };
   options.exePath = lib.mkOption {
     type = lib.types.path;
     description = ''
@@ -121,6 +130,7 @@
       flagSeparator = config.flagSeparator;
       args = config.args;
       env = config.env;
+      preHook = config.preHook;
       filesToPatch = config.filesToPatch;
       filesToExclude = config.filesToExclude;
       passthru = {
